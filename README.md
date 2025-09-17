@@ -98,7 +98,7 @@ This is a starter template with placeholder functions. Your task is to implement
    - Implement the `verify_embeddings` function
 
 4. In `modules/llm_interface.py`:
-   - Implement the `create_watsonx_embedding` function
+   - Implement the `create_openai_embedding` function
    - Implement the `create_watsonx_llm` function
    - Implement the `change_llm_model` function
 

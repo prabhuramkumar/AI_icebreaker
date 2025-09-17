@@ -11,7 +11,7 @@ import config
 
 logger = logging.getLogger(__name__)
 
-def create_watsonx_embedding() -> WatsonxEmbeddings:
+def create_openai_embedding() -> WatsonxEmbeddings:
     """Creates an IBM Watsonx Embedding model for vector representation.
     
     Returns:

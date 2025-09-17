@@ -7,8 +7,8 @@ import uuid
 import gradio as gr
 
 from modules.data_extraction import extract_linkedin_profile
-from modules.data_processing import split_profile_data, create_vector_database
-from modules.llm_interface import change_llm_model
+from modules.data_processing import split_profile_data, create_vector_database, verify_embeddings
+from modules.llm_interface_new import change_llm_model
 from modules.query_engine import generate_initial_facts, answer_user_query
 import config
 
@@ -38,40 +38,56 @@ def process_profile(linkedin_url, api_key, use_mock, selected_model):
     Returns:
         Initial facts about the profile and a session ID for this conversation.
     """
-    # For the starter template, we'll return helpful messages
-    # This will be replaced with actual implementation
-    
-    # Generate a mock session ID for demonstration purposes
-    mock_session_id = str(uuid.uuid4())
-    
-    if use_mock:
-        return (
-            "✅ Mock data selected! When implemented, this function will:\n\n"
-            "1. Load mock LinkedIn data from a pre-made file\n"
-            "2. Split the data into nodes\n"
-            "3. Create a vector database\n"
-            "4. Generate interesting facts about the profile\n\n"
-            "TO DO: Implement the process_profile function to make this work!",
-            mock_session_id
-        )
-    elif not linkedin_url:
-        return "⚠️ Please enter a LinkedIn profile URL or select 'Use Mock Data'.", None
-    elif not api_key and not use_mock:
-        return "⚠️ Please enter a ProxyCurl API key or select 'Use Mock Data'.", None
-    else:
+    try:
+        # Change LLM model if needed
         if selected_model != config.LLM_MODEL_ID:
-            model_msg = f"\nWhen implemented, will use model: {selected_model}"
-        else:
-            model_msg = ""
+            change_llm_model(selected_model)
             
-        return (
-            f"⏳ Function not yet implemented. When completed, this will:\n\n"
-            f"1. Process the LinkedIn profile at: {linkedin_url}\n"
-            f"2. Extract and analyze the profile data\n"
-            f"3. Generate interesting facts about this person's career{model_msg}\n\n"
-            f"TO DO: Implement the process_profile function to make this work!",
-            mock_session_id
+        # Use a default URL for mock data if none provided
+        if use_mock and not linkedin_url:
+            linkedin_url = "https://www.linkedin.com/in/leonkatsnelson/"
+            
+        # Extract profile data
+        profile_data = extract_linkedin_profile(
+            linkedin_url,
+            api_key if not use_mock else None,
+            mock=use_mock
         )
+        
+        if not profile_data:
+            return "Failed to retrieve profile data. Please check the URL or API key.", None
+        
+        # Split data into nodes
+        nodes = split_profile_data(profile_data)
+        
+        if not nodes:
+            return "Failed to process profile data into nodes.", None
+        
+        # Create vector database
+        index = create_vector_database(nodes)
+        
+        if not index:
+            return "Failed to create vector database.", None
+        
+        # Verify embeddings
+        if not verify_embeddings(index):
+            logger.warning("Some embeddings may be missing or invalid")
+        
+        # Generate initial facts
+        facts = generate_initial_facts(index)
+        
+        # Generate a unique session ID
+        session_id = str(uuid.uuid4())
+        
+        # Store the index for this session
+        active_indices[session_id] = index
+        
+        # Return the facts and session ID
+        return f"Profile processed successfully!\n\nHere are 3 interesting facts about this person:\n\n{facts}", session_id
+    
+    except Exception as e:
+        logger.error(f"Error in process_profile: {e}")
+        return f"Error: {str(e)}", None
 
 def chat_with_profile(session_id, user_query, chat_history):
     """Chat with a processed LinkedIn profile.

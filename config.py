@@ -1,3 +1,5 @@
+import os
+
 """Configuration settings for the Icebreaker Bot."""
 
 # IBM watsonx.ai settings
@@ -10,6 +12,10 @@ EMBEDDING_MODEL_ID = "ibm/slate-125m-english-rtrvr"
 
 # ProxyCurl API settings
 PROXYCURL_API_KEY = ""  # Replace with your API key
+
+# OpenAI API key (loaded from environment)
+# Note: keep this empty here; set OPENAI_API_KEY in your shell or .env (and ignore .env)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # Mock data URL
 MOCK_DATA_URL = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/ZRe59Y_NJyn3hZgnF1iFYA/linkedin-profile-data.json"

@@ -21,7 +21,6 @@ pip-wheel-metadata/
 
 # Env files
 .env
-.env.*
 
 # Test and tooling
 .pytest_cache/
