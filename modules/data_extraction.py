@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def extract_linkedin_profile(
     linkedin_profile_url: str, 
     api_key: Optional[str] = None, 
-    mock: bool = False
+    mock: bool = True
 ) -> Dict[str, Any]:
     """Extract LinkedIn profile data using API or loads a premade JSON file.
     

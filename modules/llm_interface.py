@@ -17,14 +17,19 @@ def create_watsonx_embedding() -> WatsonxEmbeddings:
     Returns:
         WatsonxEmbeddings model.
     """
-    watsonx_embedding = WatsonxEmbeddings(
-        model_id=config.EMBEDDING_MODEL_ID,
-        url=config.WATSONX_URL,
-        project_id=config.WATSONX_PROJECT_ID,
-        truncate_input_tokens=3,
-    )
-    logger.info(f"Created Watsonx Embedding model: {config.EMBEDDING_MODEL_ID}")
-    return watsonx_embedding
+    try:
+        watsonx_embedding = WatsonxEmbeddings(
+            model_id=config.EMBEDDING_MODEL_ID,
+            url=config.WATSONX_URL,
+            project_id=config.WATSONX_PROJECT_ID,
+            truncate_input_tokens=3,
+        )
+        logger.info(f"Created Watsonx Embedding model: {config.EMBEDDING_MODEL_ID}")
+        return watsonx_embedding
+
+    except Exception as e:
+        logger.error(f"Error in watsonx_embedding: {e}")
+        return None
 
 def create_watsonx_llm(
     temperature: float = config.TEMPERATURE,
