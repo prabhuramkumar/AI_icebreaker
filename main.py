@@ -72,14 +72,21 @@ def chatbot_interface(index):
     Args:
         index: VectorStoreIndex containing the LinkedIn profile data.
     """
-    # TODO: Implement this function to create a chatbot interface
-    # 1. Display instructions to the user
-    # 2. Enter a loop to process user queries
-    # 3. Process each query using answer_user_query
-    # 4. Display the answer to the user
-    # 5. Exit when the user types 'exit', 'quit', or 'bye'
+    print("\nYou can now ask more in-depth questions about this person. Type 'exit', 'quit', or 'bye' to quit.")
     
-    print("Chatbot interface not yet implemented.")
+    while True:
+        user_query = input("You: ")
+        if user_query.lower() in ['exit', 'quit', 'bye']:
+            print("Bot: Goodbye!")
+            break
+        
+        print("Bot is typing...", end='')
+        sys.stdout.flush()
+        time.sleep(1)  # Simulate typing delay
+        print('\r', end='')
+        
+        response = answer_user_query(index, user_query)
+        print(f"Bot: {response.response.strip()}\n")
 
 def main():
     """Main function to run the Icebreaker Bot."""
