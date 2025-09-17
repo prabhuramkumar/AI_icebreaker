@@ -21,13 +21,22 @@ def split_profile_data(profile_data: Dict[str, Any]) -> List:
     Returns:
         List of document nodes.
     """
-    # TODO: Implement this function to split profile data into nodes
-    # 1. Convert the profile data to a JSON string
-    # 2. Create a Document object from the JSON string
-    # 3. Split the document into nodes using SentenceSplitter
-    # 4. Return the nodes
-    
-    return []  # Replace with your implementation
+    try:
+        # Convert the profile data to a JSON string
+        profile_json = json.dumps(profile_data)
+
+        # Create a Document object from the JSON string
+        document = Document(text=profile_json)
+
+        # Split the document into nodes using SentenceSplitter
+        splitter = SentenceSplitter(chunk_size=config.CHUNK_SIZE)
+        nodes = splitter.get_nodes_from_documents([document])
+        
+        logger.info(f"Created {len(nodes)} nodes from profile data")
+        return nodes
+    except Exception as e:
+        logger.error(f"Error in split_profile_data: {e}")
+        return []
 
 def create_vector_database(nodes: List) -> Optional[VectorStoreIndex]:
     """Stores the document chunks (nodes) in a vector database.
