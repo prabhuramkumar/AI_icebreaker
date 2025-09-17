@@ -94,7 +94,7 @@ def main():
     parser.add_argument('--url', type=str, help='LinkedIn profile URL')
     parser.add_argument('--api-key', type=str, help='ProxyCurl API key')
     parser.add_argument('--mock', action='store_true', help='Use mock data instead of API')
-    parser.add_argument('--model', type=str, help='LLM model to use (e.g., "meta-llama/llama-3-3-70b-instruct")')
+    parser.add_argument('--model', type=str, help='LLM model to use (e.g., "ibm/granite-3-2-8b-instruct")')
     
     args = parser.parse_args()
     
@@ -103,10 +103,8 @@ def main():
     use_mock = args.mock or not linkedin_url
     
     if args.model:
-        # TODO: Import and use change_llm_model when implemented
-        # from modules.llm_interface import change_llm_model
-        # change_llm_model(args.model)
-        pass
+        from modules.llm_interface import change_llm_model
+        change_llm_model(args.model)
     
     api_key = args.api_key or config.PROXYCURL_API_KEY
     
@@ -117,9 +115,7 @@ def main():
     if use_mock and not linkedin_url:
         linkedin_url = "https://www.linkedin.com/in/leonkatsnelson/"
     
-    # TODO: Uncomment when process_linkedin is implemented
-    # process_linkedin(linkedin_url, api_key, mock=use_mock)
-    print("This is a starter template. Implement the missing functions to make it work!")
+    process_linkedin(linkedin_url, api_key, mock=use_mock)
 
 if __name__ == "__main__":
     main()
