@@ -103,7 +103,7 @@ def main():
     use_mock = args.mock or not linkedin_url
     
     if args.model:
-        from modules.llm_interface import change_llm_model
+        from modules.llm_interface_new import change_llm_model
         change_llm_model(args.model)
     
     api_key = args.api_key or config.PROXYCURL_API_KEY

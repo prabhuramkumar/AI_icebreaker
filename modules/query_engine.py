@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 from llama_index.core import VectorStoreIndex, PromptTemplate
 
-from modules.llm_interface import create_watsonx_llm
+from modules.llm_interface_new import create_openai_llm
 import config
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ def generate_initial_facts(index: VectorStoreIndex) -> str:
     """
     try:
         # Create LLM for generating facts
-        watsonx_llm = create_watsonx_llm(
+        watsonx_llm = create_openai_llm(
             temperature=0.0,
             max_new_tokens=500,
             decoding_method="sample"
@@ -60,7 +60,7 @@ def answer_user_query(index: VectorStoreIndex, user_query: str) -> Any:
     """
     try:
         # Create LLM for answering questions
-        watsonx_llm = create_watsonx_llm(
+        watsonx_llm = create_openai_llm(
             temperature=0.0,
             max_new_tokens=250,
             decoding_method="greedy"

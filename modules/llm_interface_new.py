@@ -4,6 +4,9 @@ import logging
 from typing import Callable, Optional, Any, Dict
 
 import openai
+from openai import OpenAI
+from llama_index.llms.openai import OpenAI
+from llama_index.embeddings.openai import OpenAIEmbedding
 import config
 
 logger = logging.getLogger(__name__)
@@ -13,11 +16,12 @@ def _ensure_api_key() -> bool:
     if not getattr(config, "OPENAI_API_KEY", None):
         logger.error("OPENAI_API_KEY not set in config.")
         return False
-    openai.api_key = config.OPENAI_API_KEY
+    openaiKey = config.OPENAI_API_KEY
+    logger.info(f"-------Imported gggg OpenAI Key------:{openaiKey}")
     return True
 
 
-def create_openai_embedding() -> Optional[Callable[[str], Optional[list]]]:
+def create_openai_embedding() -> OpenAIEmbedding:
     """Create a simple embedding function using OpenAI Embeddings API.
 
     Returns:
@@ -26,25 +30,26 @@ def create_openai_embedding() -> Optional[Callable[[str], Optional[list]]]:
     """
     if not _ensure_api_key():
         return None
-
     model_id = getattr(config, "EMBEDDING_MODEL_ID", "text-embedding-3-small")
 
-    def embed(text: str) -> Optional[list]:
-        try:
-            resp = openai.Embedding.create(model=model_id, input=text)
-            return resp["data"][0]["embedding"]
-        except Exception as e:
-            logger.error(f"Error creating embedding: {e}")
-            return None
+    try:
+        openai_embedding = OpenAIEmbedding(
+            model=model_id,
+            embed_batch_size=10,
+            api_key=config.OPENAI_API_KEY,
+        )
+        logger.info(f"Created OpenAI Embedding model: {model_id}")
+        return openai_embedding
 
-    logger.info(f"OpenAI embedding function created (model={model_id})")
-    return embed
+    except Exception as e:
+        logger.error(f"Error in openai_embedding: {e}")
+        return None
 
 
 def create_openai_llm(
     temperature: float = None,
     max_new_tokens: int = None,
-) -> Optional[Callable[[str, Optional[str]], str]]:
+) -> OpenAI:
     """Create a simple LLM generator backed by OpenAI Chat API (gpt-3.5-turbo).
 
     The returned callable has the signature: generate(prompt: str, system_prompt: Optional[str] = None) -> str
@@ -63,27 +68,18 @@ def create_openai_llm(
     temperature = config.TEMPERATURE if temperature is None else temperature
     max_tokens = config.MAX_NEW_TOKENS if max_new_tokens is None else max_new_tokens
 
-    def generate(prompt: str, system_prompt: Optional[str] = None) -> str:
-        messages = []
-        if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        messages.append({"role": "user", "content": prompt})
+    try:
+        openai_llm = OpenAI(
+            model=model_id,              # or "gpt-4.1-mini" / "gpt-3.5-turbo"
+            temperature=temperature,      # controls randomness
+            max_tokens=max_tokens     # OpenAI uses `max_tokens` instead of `max_new_tokens`
+        )
+        logger.info("Created OpenAI LLM model: gpt-4.1")
+        return openai_llm
 
-        try:
-            resp = openai.ChatCompletion.create(
-                model=model_id,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-            content = resp["choices"][0]["message"]["content"]
-            return content.strip()
-        except Exception as e:
-            logger.error(f"Error generating LLM response: {e}")
-            return ""
-
-    logger.info(f"OpenAI LLM generator created (model={model_id})")
-    return generate
+    except Exception as e:
+        logger.error(f"Error in openai_llm: {e}")
+        return None
 
 
 def change_llm_model(new_model_id: str) -> None:
