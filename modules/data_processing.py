@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Optional
 
 from llama_index.core import Document, VectorStoreIndex
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.embeddings.openai import OpenAIEmbedding
 
 from modules.llm_interface_new import create_openai_embedding
 import config
@@ -51,13 +52,23 @@ def create_vector_database(nodes: List) -> Optional[VectorStoreIndex]:
         # Get the embedding model
         embedding_model = create_openai_embedding()
 
+        # 2. Create embedding model
+        print("-----Starting Embedding model-----")
+        # embedding_model = OpenAIEmbedding(model="text-embedding-3-small", api_key=config.MY_TEST_KEY)
+
+        vec = embedding_model.get_text_embedding("Hello world")
+        print("✅ Embedding length:", len(vec))   # should be 1536 for text-embedding-3-small
+        print("First 5 values:", vec[:5])
+
         # Create a VectorStoreIndex from the nodes
         index = VectorStoreIndex(
             nodes=nodes,
             embed_model=embedding_model,
             show_progress=True
         )
-        
+        # --- Test index contents ---
+        print("Number of nodes in index:", len(index.docstore.docs))
+            
         logger.info("Vector database created successfully")
         return index
     except Exception as e:
@@ -90,7 +101,7 @@ def verify_embeddings(index: VectorStoreIndex) -> bool:
             logger.warning("Some node embeddings are missing")
             return False
         else:
-            logger.info("All node embeddings are valid")
+            logger.info("\n✅ All node embeddings are valid")
             return True
     except Exception as e:
         logger.error(f"Error in verify_embeddings: {e}")

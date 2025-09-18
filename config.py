@@ -17,8 +17,8 @@ EMBEDDING_MODEL_ID = "text-embedding-3-large"
 PROXYCURL_API_KEY = ""  # Replace with your API key
 
 # OpenAI API key (loaded from environment)
-# Note: keep this empty here; set OPENAI_API_KEY in your shell or .env (and ignore .env)
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+# Note: keep this empty here; set MY_TEST_KEY in your shell or .env (and ignore .env)
+MY_TEST_KEY = os.getenv("MY_TEST_KEY", "")
 
 # Mock data URL
 MOCK_DATA_URL = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/ZRe59Y_NJyn3hZgnF1iFYA/linkedin-profile-data.json"

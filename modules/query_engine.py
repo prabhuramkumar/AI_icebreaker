@@ -21,10 +21,10 @@ def generate_initial_facts(index: VectorStoreIndex) -> str:
     """
     try:
         # Create LLM for generating facts
-        watsonx_llm = create_openai_llm(
+        openai_llm = create_openai_llm(
             temperature=0.0,
             max_new_tokens=500,
-            decoding_method="sample"
+            top_p=0.7
         )
         
         # Create prompt template
@@ -34,7 +34,7 @@ def generate_initial_facts(index: VectorStoreIndex) -> str:
         query_engine = index.as_query_engine(
             streaming=False,
             similarity_top_k=config.SIMILARITY_TOP_K,
-            llm=watsonx_llm,
+            llm=openai_llm,
             text_qa_template=facts_prompt
         )
         
@@ -60,10 +60,10 @@ def answer_user_query(index: VectorStoreIndex, user_query: str) -> Any:
     """
     try:
         # Create LLM for answering questions
-        watsonx_llm = create_openai_llm(
+        openai_llm = create_openai_llm(
             temperature=0.0,
             max_new_tokens=250,
-            decoding_method="greedy"
+            top_p=1.0
         )
         
         # Create prompt template
@@ -80,7 +80,7 @@ def answer_user_query(index: VectorStoreIndex, user_query: str) -> Any:
         query_engine = index.as_query_engine(
             streaming=False,
             similarity_top_k=config.SIMILARITY_TOP_K,
-            llm=watsonx_llm,
+            llm=openai_llm,
             text_qa_template=question_prompt
         )
         

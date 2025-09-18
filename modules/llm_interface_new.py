@@ -3,8 +3,6 @@
 import logging
 from typing import Callable, Optional, Any, Dict
 
-import openai
-from openai import OpenAI
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 import config
@@ -13,11 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 def _ensure_api_key() -> bool:
-    if not getattr(config, "OPENAI_API_KEY", None):
-        logger.error("OPENAI_API_KEY not set in config.")
+    if not getattr(config, "MY_TEST_KEY", None):
+        logger.error("MY_TEST_KEY not set in config.")
         return False
-    openaiKey = config.OPENAI_API_KEY
-    logger.info(f"-------Imported gggg OpenAI Key------:{openaiKey}")
     return True
 
 
@@ -36,7 +32,7 @@ def create_openai_embedding() -> OpenAIEmbedding:
         openai_embedding = OpenAIEmbedding(
             model=model_id,
             embed_batch_size=10,
-            api_key=config.OPENAI_API_KEY,
+            api_key=config.MY_TEST_KEY,
         )
         logger.info(f"Created OpenAI Embedding model: {model_id}")
         return openai_embedding
@@ -49,6 +45,7 @@ def create_openai_embedding() -> OpenAIEmbedding:
 def create_openai_llm(
     temperature: float = None,
     max_new_tokens: int = None,
+    top_p: float = None
 ) -> OpenAI:
     """Create a simple LLM generator backed by OpenAI Chat API (gpt-3.5-turbo).
 
@@ -63,18 +60,21 @@ def create_openai_llm(
     """
     if not _ensure_api_key():
         return None
-
+    
+    logger.info("--------Created OpenAI LLM model----------")
     model_id = getattr(config, "LLM_MODEL_ID", "gpt-3.5-turbo")
     temperature = config.TEMPERATURE if temperature is None else temperature
     max_tokens = config.MAX_NEW_TOKENS if max_new_tokens is None else max_new_tokens
-
+    logger.info(f"---------LLM Start--------{model_id}")
     try:
         openai_llm = OpenAI(
             model=model_id,              # or "gpt-4.1-mini" / "gpt-3.5-turbo"
             temperature=temperature,      # controls randomness
-            max_tokens=max_tokens     # OpenAI uses `max_tokens` instead of `max_new_tokens`
+            max_tokens=max_tokens,
+            top_p=top_p,
+            api_key=config.MY_TEST_KEY  # OpenAI uses `max_tokens` instead of `max_new_tokens`
         )
-        logger.info("Created OpenAI LLM model: gpt-4.1")
+        logger.info("✅ Created OpenAI LLM model: gpt-4.1")
         return openai_llm
 
     except Exception as e:

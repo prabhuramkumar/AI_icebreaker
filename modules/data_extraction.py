@@ -79,7 +79,7 @@ def extract_linkedin_profile(
                 if data.get("groups"):
                     for group_dict in data.get("groups"):
                         group_dict.pop("profile_pic_url", None)
-
+                logger.info(f"------Response data------: {response.text[:200]}...")
                 return data
             except ValueError as e:
                 logger.error(f"Error parsing JSON response: {e}")
