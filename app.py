@@ -1,6 +1,5 @@
 """Gradio web interface for the Icebreaker Bot."""
 
-import os
 import sys
 import logging
 import uuid
@@ -90,30 +89,30 @@ def process_profile(linkedin_url, api_key, use_mock, selected_model):
         return f"Error: {str(e)}", None
 
 def chat_with_profile(session_id, user_query, chat_history):
-    """Chat with a processed LinkedIn profile.
-    
-    Args:
-        session_id: Session ID for this conversation.
-        user_query: User's question.
-        chat_history: Chat history.
-        
-    Returns:
-        Updated chat history.
-    """
-    # For the starter template, we'll return helpful messages
-    # This will be replaced with actual implementation
-    
-    if not session_id:
-        return chat_history + [[user_query, "⚠️ No profile loaded. Please process a LinkedIn profile first."]]
-    elif not user_query.strip():
-        return chat_history + [["", "⚠️ Please enter a question."]]
-    else:
-        return chat_history + [[
-            user_query, 
+    """Chat with a processed LinkedIn profile."""
+    print(f"user_query-1: {user_query}\n")
+    index = active_indices.get(session_id)
+    if not index:
+        # must still return history, not a string
+        chat_history.append([user_query, "⚠️ Failed to create vector database."])
+        return chat_history
+
+    print(f"user_query-2: {user_query}\n")
+    response = answer_user_query(index, user_query)
+
+    if not response:
+        bot_msg = (
             f"⏳ When implemented, this function will answer your question: '{user_query}'\n\n"
             f"TO DO: Implement the chat_with_profile function to make this work!"
-        ]]
+        )
+    else:
+        bot_msg = response.response.strip()
 
+    # append properly
+    chat_history.append([user_query, bot_msg])
+    return chat_history
+        
+    
 def create_gradio_interface():
     """Create the Gradio interface for the Icebreaker Bot."""
     # Define available LLM models

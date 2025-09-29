@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def _ensure_api_key() -> bool:
     if not getattr(config, "MY_TEST_KEY", None):
-        logger.error("MY_TEST_KEY not set in config.")
+        logger.error(f"MY_TEST_KEY not set in config.")
         return False
     return True
 
